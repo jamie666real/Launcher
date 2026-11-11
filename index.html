@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111411">
+  <title>Blockline Launcher</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #edf0e8;
+      --muted: #9da69a;
+      --canvas: #111411;
+      --panel: #191e19;
+      --line: #303830;
+      --lime: #c5f36b;
+      --orange: #e89359;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --sans: "Bahnschrift", "Segoe UI Variable", "Trebuchet MS", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background-color: var(--canvas);
+      background-image: linear-gradient(rgba(220, 235, 206, .025) 1px, transparent 1px), linear-gradient(90deg, rgba(220, 235, 206, .025) 1px, transparent 1px);
+      background-size: 32px 32px;
+      font-family: var(--sans);
+    }
+
+    button { font: inherit; }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 248px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .rail {
+      display: flex;
+      flex-direction: column;
+      padding: 28px 20px 22px;
+      border-right: 1px solid var(--line);
+      background: rgba(17, 20, 17, .94);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      color: #141811;
+      background: var(--lime);
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 900;
+      clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 72%, 72% 100%, 0 100%);
+    }
+
+    .brand-name {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .brand-caption {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .05em;
+    }
+
+    .rail-label, .eyebrow {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .rail-label { margin: 54px 8px 12px; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 42px;
+      padding: 0 12px;
+      border: 1px solid rgba(197, 243, 107, .3);
+      color: var(--lime);
+      background: rgba(197, 243, 107, .07);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .nav-glyph { font-family: var(--mono); font-size: 16px; }
+
+    .rail-note {
+      margin-top: auto;
+      padding: 15px 12px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .rail-note strong { color: var(--ink); font-weight: 600; }
+
+    main {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 34px clamp(22px, 5vw, 72px) 48px;
+    }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow { margin: 0; }
+
+    .local-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--lime);
+      box-shadow: 0 0 12px rgba(197, 243, 107, .5);
+    }
+
+    .intro {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 34px 0 24px;
+    }
+
+    h1 {
+      margin: 8px 0 0;
+      font-size: clamp(30px, 4vw, 46px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .intro-copy {
+      max-width: 340px;
+      margin: 0 0 2px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(270px, .75fr);
+      border: 1px solid var(--line);
+      background: rgba(25, 30, 25, .92);
+      animation: arrive .45s ease-out both;
+    }
+
+    .versions { min-width: 0; padding: 22px; }
+
+    .section-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    h2 { margin: 0; font-size: 15px; font-weight: 700; }
+
+    .count { color: var(--muted); font: 11px var(--mono); }
+
+    .version-list { display: grid; gap: 7px; }
+
+    .version-option {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr) auto 18px;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-height: 62px;
+      padding: 9px 12px;
+      border: 1px solid transparent;
+      color: var(--ink);
+      text-align: left;
+      background: #202620;
+      cursor: pointer;
+      transition: border-color .16s ease, background-color .16s ease, transform .16s ease;
+    }
+
+    .version-option:hover { border-color: #596552; transform: translateX(2px); }
+
+    .version-option[aria-pressed="true"] {
+      border-color: var(--lime);
+      background: #252e22;
+    }
+
+    .version-option:focus-visible, .launch:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 3px;
+    }
+
+    .version-icon {
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      border: 1px solid #455143;
+      color: var(--lime);
+      font: 11px var(--mono);
+      background: #171d17;
+    }
+
+    .version-name { display: block; font-size: 13px; font-weight: 700; }
+    .version-file { display: block; margin-top: 4px; color: var(--muted); font: 10px var(--mono); }
+    .version-tag { color: #b7c1b2; font: 9px var(--mono); text-transform: uppercase; }
+    .selection-mark { color: var(--lime); font-size: 15px; opacity: 0; }
+    [aria-pressed="true"] .selection-mark { opacity: 1; }
+
+    .launch-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100%;
+      padding: 24px;
+      border-left: 1px solid var(--line);
+      background-color: #171c17;
+      background-image: linear-gradient(135deg, transparent 0 48%, rgba(232, 147, 89, .055) 48% 49%, transparent 49% 100%);
+      background-size: 22px 22px;
+    }
+
+    .selected-version {
+      margin: 12px 0 8px;
+      color: var(--lime);
+      font-family: var(--mono);
+      font-size: clamp(28px, 3vw, 38px);
+      font-weight: 700;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .selected-meta { margin: 0; color: var(--muted); font-size: 12px; }
+
+    .launch-bottom { margin-top: 44px; }
+
+    .launch {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      min-height: 52px;
+      padding: 0 16px;
+      border: 0;
+      color: #151a11;
+      background: var(--lime);
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background-color .16s ease, transform .16s ease;
+    }
+
+    .launch:hover { background: #d7ff8b; transform: translateY(-2px); }
+    .launch-arrow { font: 18px var(--mono); }
+
+    .launch-hint { margin: 11px 0 0; color: var(--muted); font: 10px var(--mono); }
+
+    .footer-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 18px;
+      color: #778075;
+      font: 10px var(--mono);
+    }
+
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 760px) {
+      .shell { grid-template-columns: 1fr; }
+      .rail { flex-direction: row; align-items: center; justify-content: space-between; padding: 14px 18px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .rail-label, .rail-note { display: none; }
+      .nav-item { min-height: 36px; padding: 0 10px; font-size: 11px; }
+      .nav-glyph { font-size: 14px; }
+      main { padding: 22px 18px 34px; }
+      .intro { align-items: start; flex-direction: column; gap: 12px; padding-top: 26px; }
+      .intro-copy { max-width: 480px; }
+      .workspace { grid-template-columns: 1fr; }
+      .launch-panel { min-height: 220px; border-top: 1px solid var(--line); border-left: 0; }
+      .launch-bottom { margin-top: 28px; }
+    }
+
+    @media (max-width: 420px) {
+      .version-option { grid-template-columns: 34px minmax(0, 1fr) 18px; gap: 9px; padding-inline: 9px; }
+      .version-icon { width: 32px; height: 32px; }
+      .version-tag { display: none; }
+      .versions, .launch-panel { padding: 17px; }
+      .footer-line { flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="rail" aria-label="Launcher navigation">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">B</div>
+        <div>
+          <p class="brand-name">Blockline</p>
+          <p class="brand-caption">MINECRAFT LAUNCHER</p>
+        </div>
+      </div>
+      <p class="rail-label">Library</p>
+      <div class="nav-item" aria-current="page"><span class="nav-glyph" aria-hidden="true">▦</span>Game versions</div>
+      <div class="rail-note"><strong>Local library</strong><br>Clients are loaded from this launcher folder.</div>
+    </aside>
+
+    <main>
+      <div class="topline">
+        <p class="eyebrow">Launcher / Library</p>
+        <div class="local-status"><span class="status-dot" aria-hidden="true"></span>Local clients ready</div>
+      </div>
+
+      <header class="intro">
+        <div>
+          <p class="eyebrow">Choose your build</p>
+          <h1>Game versions</h1>
+        </div>
+        <p class="intro-copy">Pick a client from your local library. Your selected version will open in a separate tab.</p>
+      </header>
+
+      <section class="workspace" aria-label="Version selection">
+        <div class="versions">
+          <div class="section-heading">
+            <h2>Installed versions</h2>
+            <span class="count" id="version-count"></span>
+          </div>
+          <div class="version-list" id="version-list" role="group" aria-label="Choose a Minecraft version"></div>
+        </div>
+
+        <aside class="launch-panel" aria-live="polite">
+          <div>
+            <p class="eyebrow">Selected build</p>
+            <p class="selected-version" id="selected-version"></p>
+            <p class="selected-meta" id="selected-meta"></p>
+          </div>
+          <div class="launch-bottom">
+            <button class="launch" id="launch-button" type="button">
+              <span>Launch game</span><span class="launch-arrow" aria-hidden="true">↗</span>
+            </button>
+            <p class="launch-hint">OPENS IN A NEW TAB</p>
+          </div>
+        </aside>
+      </section>
+
+      <div class="footer-line"><span>BLOCKLINE / LOCAL LIBRARY</span><span>6 CLIENT BUILDS</span></div>
+    </main>
+  </div>
+
+  <script>
+    const versions = [
+      { name: "26.3", file: "26.3-wasm.html", tag: "WASM" },
+      { name: "26.2", file: "26.2-wasm.html", tag: "WASM" },
+      { name: "26.1.2", file: "26.1.2-wasm.html", tag: "WASM" },
+      { name: "1.21.11", file: "1.21.11.html", tag: "Classic" },
+      { name: "1.20.6", file: "1.20.6-wasm.html", tag: "WASM" },
+      { name: "1.14.4", file: "1.14.4.html", tag: "Classic" }
+    ];
+
+    const list = document.querySelector("#version-list");
+    const selectedVersion = document.querySelector("#selected-version");
+    const selectedMeta = document.querySelector("#selected-meta");
+    const launchButton = document.querySelector("#launch-button");
+    let selected = 0;
+
+    function selectVersion(index) {
+      selected = index;
+      const version = versions[index];
+      document.querySelectorAll(".version-option").forEach((option, optionIndex) => {
+        option.setAttribute("aria-pressed", String(optionIndex === index));
+      });
+      selectedVersion.textContent = version.name;
+      selectedMeta.textContent = `${version.tag} client`;
+    }
+
+    versions.forEach((version, index) => {
+      const option = document.createElement("button");
+      option.className = "version-option";
+      option.type = "button";
+      option.setAttribute("aria-pressed", "false");
+      option.innerHTML = `<span class="version-icon" aria-hidden="true">${version.name.split(".")[0]}</span><span><span class="version-name">${version.name}</span><span class="version-file">${version.file}</span></span><span class="version-tag">${version.tag}</span><span class="selection-mark" aria-hidden="true">●</span>`;
+      option.addEventListener("click", () => selectVersion(index));
+      list.append(option);
+    });
+
+    document.querySelector("#version-count").textContent = `${versions.length} BUILDS`;
+    launchButton.addEventListener("click", () => {
+      window.open(`minecraft/play/version/${encodeURIComponent(versions[selected].file)}`, "_blank", "noopener");
+    });
+    selectVersion(selected);
+  </script>
+</body>
+</html>
